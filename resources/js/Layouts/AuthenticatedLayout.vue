@@ -9,6 +9,9 @@ import { Link } from '@inertiajs/vue3';
 
 const siteName = ref('Skillcheck');
 const showingNavigationDropdown = ref(false);
+
+
+console.log("Authentication layout loaded");
 </script>
 
 <template>

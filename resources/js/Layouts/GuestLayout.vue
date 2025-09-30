@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 const siteName = ref('Skillcheck');
 const showingNavigationDropdown = ref(false);
+
+console.log("GuestLayout loaded");
 </script>
 
 <template>

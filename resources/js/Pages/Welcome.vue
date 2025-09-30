@@ -36,7 +36,8 @@ const features = ref([
         id: 2,
         icon: '⌨️',
         title: 'Speedwriter',
-        description: 'Test your writing skills on the keyboard with fast-paced typing challenges. Using single words or whole sentances'
+        description: 'Test your writing skills on the keyboard with fast-paced typing challenges. Using single words or whole sentances',
+        link: '/games/typespeed'
     },
     {
         id: 3,
