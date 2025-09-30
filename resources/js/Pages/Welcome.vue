@@ -43,7 +43,8 @@ const features = ref([
         id: 3,
         icon: '🧠',
         title: 'Brain Teaser',
-        description: 'Enhance your memory skills with engaging challenges and fun gameplay, through numbers, words or sequences.'
+        description: 'Enhance your memory skills with engaging challenges and fun gameplay, through numbers, words or sequences.',
+        link: '/games/memorygame'
     }
 ]);
 
@@ -99,7 +100,14 @@ function scrollToSection(sectionId) {
                         <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-2xl dark:bg-blue-900">
                             {{ feature.icon }}
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        <Link 
+                            v-if="feature.link"
+                            :href="feature.link"
+                            class="block text-xl font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
+                            {{ feature.title }}
+                        </Link>
+                        <h3 v-else class="text-xl font-semibold text-gray-900 dark:text-white">
                             {{ feature.title }}
                         </h3>
                         <p class="mt-4 text-gray-600 dark:text-gray-300">
