@@ -36,13 +36,15 @@ const features = ref([
         id: 2,
         icon: '⌨️',
         title: 'Speedwriter',
-        description: 'Test your writing skills on the keyboard with fast-paced typing challenges. Using single words or whole sentances'
+        description: 'Test your writing skills on the keyboard with fast-paced typing challenges. Using single words or whole sentances',
+        link: '/games/typespeed'
     },
     {
         id: 3,
         icon: '🧠',
         title: 'Brain Teaser',
-        description: 'Enhance your memory skills with engaging challenges and fun gameplay, through numbers, words or sequences.'
+        description: 'Enhance your memory skills with engaging challenges and fun gameplay, through numbers, words or sequences.',
+        link: '/games/memorygame'
     }
 ]);
 
@@ -59,61 +61,7 @@ function scrollToSection(sectionId) {
     <Head title="Welcome" />
     
     <div class="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
-        <!-- Header -->
-        <header class="fixed top-0 z-50 w-full bg-white shadow-lg dark:bg-gray-800">
-            <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="flex h-16 justify-between">
-                    <div class="flex items-center">
-                        <div class="text-2xl font-bold text-blue-600">{{ siteName }}</div>
-                    </div>
-                    
-                    <!-- Navigation Links -->
-                    <div class="hidden space-x-8 sm:ml-6 sm:flex sm:items-center">
-                        <a href="#home" @click.prevent="scrollToSection('home')" 
-                           class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors dark:text-gray-100 dark:hover:text-blue-400">
-                            Home
-                        </a>
-                        <a href="#services" @click.prevent="scrollToSection('services')" 
-                           class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors dark:text-gray-100 dark:hover:text-blue-400">
-                            Services
-                        </a>
-                        <a href="#contact" @click.prevent="scrollToSection('contact')" 
-                           class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors dark:text-gray-100 dark:hover:text-blue-400">
-                            Contact
-                        </a>
-                    </div>
-
-                    <!-- Auth Links -->
-                    <nav v-if="canLogin" class="flex items-center space-x-4">
-                        <Link
-                            v-if="$page.props.auth.user"
-                            :href="route('dashboard')"
-                            class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-                        >
-                            Dashboard
-                        </Link>
-
-                        <template v-else>
-                            <Link
-                                :href="route('login')"
-                                class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors dark:text-gray-300 dark:hover:text-blue-400"
-                            >
-                                Log in
-                            </Link>
-
-                            <Link
-                                v-if="canRegister"
-                                :href="route('register')"
-                                class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-                            >
-                                Register
-                            </Link>
-                        </template>
-                    </nav>
-                </div>
-            </nav>
-        </header>
-
+        
         <!-- Hero Section -->
         <section id="home" class="pt-16 bg-gradient-to-br from-blue-600 to-purple-700 text-white">
             <div class="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
@@ -152,7 +100,14 @@ function scrollToSection(sectionId) {
                         <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-2xl dark:bg-blue-900">
                             {{ feature.icon }}
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        <Link 
+                            v-if="feature.link"
+                            :href="feature.link"
+                            class="block text-xl font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
+                            {{ feature.title }}
+                        </Link>
+                        <h3 v-else class="text-xl font-semibold text-gray-900 dark:text-white">
                             {{ feature.title }}
                         </h3>
                         <p class="mt-4 text-gray-600 dark:text-gray-300">
@@ -176,6 +131,21 @@ function scrollToSection(sectionId) {
         </footer>
     </div>
 </template>
+
+<script>
+import { h } from 'vue';
+import GuestLayout from '@/Layouts/GuestLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+
+
+export default {
+    layout: (h, page) =>{
+        const Layout = page.props.auth.user ? AuthenticatedLayout : GuestLayout;
+        return h(Layout, null, () => page);
+    },
+}
+
+</script>
 
 <style scoped>
 @keyframes fade-in-up {

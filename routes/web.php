@@ -14,6 +14,14 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
+Route::get('/games/typespeed', function () {
+    return Inertia::render('Games/TypeSpeedGame');
+})->name('type-speed-game');
+
+Route::get('/games/memorygame', function () {
+    return Inertia::render('Games/MemoryGame');
+})->name('memory-game');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
