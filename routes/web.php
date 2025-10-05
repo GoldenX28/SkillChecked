@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Api\TypeSpeedResultController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -21,6 +22,8 @@ Route::get('/games/aimtraingame', function () {
 Route::get('/games/typespeed', function () {
     return Inertia::render('Games/TypeSpeedGame');
 })->name('type-speed-game');
+
+Route::middleware('auth:sanctum')->post('Games/TypeSpeedGame/results', [TypeSpeedResultController::class, 'store']);
 
 Route::get('/games/memorygame', function () {
     return Inertia::render('Games/MemoryGame');
