@@ -1,11 +1,12 @@
 <script setup>
+let resultsSaved = ref(false);
 import { ref, useTemplateRef, onUnmounted, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
   maxTime: { type: Number, default: 30 }
 });
-const emit = defineEmits(['gameEnd']);
+const emit = defineEmits(['restartGame']);
 
 let startFlag = ref(false);
 let showResults = ref(false);
@@ -21,7 +22,7 @@ let accuracy = 0;
 let wordIndex = 0;
 let letterIndex = 0;
 
-const inputRef = useTemplateRef('input');
+let inputRef = useTemplateRef('input');
 let isInputFocused = ref(true);
 
 let intervalId = null;
@@ -54,6 +55,7 @@ const startGame = async () => {
     });
 
     loading.value = false;
+    focusOnInput();
 };
 
 const onKeyDown = (event) => {
@@ -88,6 +90,10 @@ const onTextInput = (key) => {
         }, 1000);
     }
 
+    if (displayText.value[wordIndex] === undefined) {
+        return;
+    }
+
     const displayChar = displayText.value[wordIndex][letterIndex];
     const typedChar = key == " " ? "\u00A0" : key.slice(-1);
     if (typedChar === displayChar.chr) {
@@ -110,7 +116,7 @@ const onTextInput = (key) => {
 }
 
 const updateWPM = () => {
-    currentWPM = Math.round((correctChars / 5) / ((props.maxTime - countdown.value) / 60));
+    currentWPM = Math.round((correctChars / 5) / ((props.maxTime - countdown.value || 0.5) / 60));
 };
 
 const focusOnInput = () => {
@@ -124,22 +130,29 @@ const handleBlur = () => {
     isInputFocused.value = false;
 };
 
-const gameEnd = async () => {
+const gameEnd = () => {
     showResults.value = true;
     startFlag.value = false;
     accuracy = typedChars > 0 ? Math.round((correctChars / typedChars) * 100) : 0;
+};
 
+const saveResultsButton = async () => {
+    if (resultsSaved.value) return;
     const results = {
         wpm: currentWPM,
         correct_chars: correctChars,
         errors: errors,
         typed_chars: typedChars,
-        accuracy: accuracy
+        accuracy: accuracy,
     };
-
-   const response = await saveResults(results);
-   if (response.ok) console.log('Results saved successfully');
-   else console.error('Failed to save results');
+    
+    const response = await saveResults(results);
+    if (response.ok) {
+        resultsSaved.value = true;
+        alert('Results saved successfully');
+    } else {
+        alert('Failed to save results');
+    }
 };
 
 const saveResults = async (results) => {
@@ -168,6 +181,20 @@ onUnmounted(() => {
 </script>
 
 <template>
+    <input 
+        ref="input"
+        class="opacity-0 absolute"
+        @keydown="onKeyDown"
+        @focus="handleFocus"
+        @blur="handleBlur"
+        type="text" 
+        autocomplete="off" 
+        autocapitalize="off" 
+        autocorrect="off" 
+        data-gramm="false" 
+        spellcheck="false"
+    >
+
     <div v-if="loading" class="w-full h-full flex flex-col items-center justify-center">
         <div class="flex flex-col items-center justify-center h-full">
             <svg class="animate-spin h-12 w-12 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -179,29 +206,20 @@ onUnmounted(() => {
     </div>
     <div v-else-if="!showResults" class="w-full h-full flex flex-col items-center justify-center">
         <div class="game h-full flex-col justify-center items-center" @click="focusOnInput">
-            <div class="w-full flex justify-center gap-8 items-center py-4 border-b border-gray-200 bg-white/80">
-                <div class="flex flex-col items-center">
-                    <span class="text-lg font-semibold text-gray-700">WPM</span>
-                    <span class="text-2xl font-bold text-blue-600">{{ currentWPM }}</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <span class="text-lg font-semibold text-gray-700">Countdown</span>
-                    <span class="text-2xl font-bold text-red-600">{{ countdown }}</span>
-                </div>
+            <div class="w-full flex justify-center items-center py-4 border-b border-gray-200 bg-white/80">
+                <span v-if="!intervalId" class="text-xl font-semibold text-gray-700">Start typing to start</span>
+                <template v-else>
+                    <div class="flex flex-col items-center mr-8">
+                        <span class="text-lg font-semibold text-gray-700">WPM</span>
+                        <span class="text-2xl font-bold text-blue-600">{{ currentWPM }}</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-lg font-semibold text-gray-700">Countdown</span>
+                        <span class="text-2xl font-bold text-red-600">{{ countdown }}</span>
+                    </div>
+                </template>
             </div>
-            <input 
-                ref="input"
-                class="opacity-0 absolute"
-                @keydown="onKeyDown"
-                @focus="handleFocus"
-                @blur="handleBlur"
-                type="text" 
-                autocomplete="off" 
-                autocapitalize="off" 
-                autocorrect="off" 
-                data-gramm="false" 
-                spellcheck="false"
-            >
+            
             <div class="displayed-text flex flex-wrap">
                 <div v-for="(word, wIndex) in displayText" :key="wIndex" class="flex flex-nowrap">
                     <div v-for="(character, cIndex) in word" :key="character.id" class="relative">
@@ -229,8 +247,22 @@ onUnmounted(() => {
             <div class="text-xl text-gray-800">Correct Chars: <span class="font-bold">{{ correctChars }}</span></div>
             <div class="text-xl text-gray-800">Errors: <span class="font-bold">{{ errors }}</span></div>
             <div class="text-xl text-gray-800">Total Typed: <span class="font-bold">{{ typedChars }}</span></div>
+            <div class="text-xl text-gray-800">Accuracy: <span class="font-bold">{{ accuracy }}%</span></div>
         </div>
-        <button class="bg-blue-500 text-white px-6 py-2 rounded text-lg font-semibold" @click="restartGame">Restart</button>
+        <div class="flex gap-4">
+            <button
+                v-if="$page.props.auth.user"
+                class="px-6 py-2 rounded text-lg font-semibold transition-colors duration-200"
+                :class="resultsSaved
+                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed opacity-70'
+                    : 'bg-blue-500 text-white hover:bg-blue-600'"
+                @click="saveResultsButton"
+                :disabled="resultsSaved"
+            >
+                Save Results
+            </button>
+            <button class="bg-gray-500 text-white px-6 py-2 rounded text-lg font-semibold" @click="restartGame">Restart</button>
+        </div>
     </div>
 </template>
 

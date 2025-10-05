@@ -28,7 +28,6 @@ const startGame = () => {
 
                 <TypeSpeedGameCore 
                     v-else
-                    :maxTime="maxTime"
                     @restartGame="() => {
                         startFlag = false;
                     }" 

@@ -18,6 +18,20 @@ class TypeSpeedResultController extends Controller
             'accuracy' => 'required|integer',
         ]);
 
+        // Prevent duplicate save for the same user and stats in a short time window
+        $alreadySaved = TypeSpeedResult::where('user_id', Auth::id())
+            ->where('wpm', $request->wpm)
+            ->where('correct_chars', $request->correct_chars)
+            ->where('errors', $request->errors)
+            ->where('typed_chars', $request->typed_chars)
+            ->where('accuracy', $request->accuracy)
+            ->where('created_at', '>=', now()->subMinutes(5))
+            ->exists();
+
+        if ($alreadySaved) {
+            return response()->json(['success' => false, 'message' => 'Results already saved.'], 409);
+        }
+
         $result = TypeSpeedResult::create([
             'user_id' => Auth::id(),
             'wpm' => $request->wpm,
