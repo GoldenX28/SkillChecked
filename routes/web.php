@@ -14,6 +14,10 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
+Route::get('/games/aimtraingame', function () {
+    return Inertia::render('Games/AimTrainGame');
+});
+
 Route::get('/games/typespeed', function () {
     return Inertia::render('Games/TypeSpeedGame');
 })->name('type-speed-game');

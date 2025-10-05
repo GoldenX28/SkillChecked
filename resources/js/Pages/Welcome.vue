@@ -30,7 +30,8 @@ const features = ref([
         id: 1,
         icon: '🎯',
         title: 'Aim trainer',
-        description: 'Train your aim with high action gameplay, that requires precision and timing.'
+        description: 'Train your aim with high action gameplay, that requires precision and timing.',
+        link: '/games/aimtraingame'
     },
     {
         id: 2,
