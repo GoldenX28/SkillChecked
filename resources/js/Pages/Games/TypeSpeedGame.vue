@@ -1,14 +1,39 @@
 <script setup>
+import { ref } from 'vue';
 import GameLayout from '@/Pages/Games/GameLayout.vue';
+import TypeSpeedGameCore from '@/Components/TypeSpeedGameCore.vue';
+
+let startFlag = ref(false);
+
+const startGame = () => {
+    startFlag.value = true;
+};
+
 </script>
 
 <template>
     <GameLayout gameName="TypeSpeed">
         <template #gamewindow>
-            <div class="game-instructions">
-                <h2 class="text-2xl font-bold">Instructions</h2>
-                <p>Type the words as fast as you can!</p>
-            </div>
+            <div class="w-full h-full flex flex-col items-center justify-center">
+                <div v-if="!startFlag" class="menu-window">
+                    <h1 class="text-3xl font-bold">TypeSpeed Game</h1>
+                    <div class="game-instructions mt-5">
+                        <h2 class="text-2xl font-bold">Instructions</h2>
+                        <p>Type the words as fast as you can!</p>
+                    </div>
+                    <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded" @click="startGame">
+                        Start Game
+                    </button>
+                </div>
+
+                <TypeSpeedGameCore 
+                    v-else
+                    :maxTime="maxTime"
+                    @restartGame="() => {
+                        startFlag = false;
+                    }" 
+                />
+            </div> 
         </template>
 
         <template #leaderboard>
