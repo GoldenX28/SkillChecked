@@ -23,8 +23,6 @@ Route::get('/games/typespeed', function () {
     return Inertia::render('Games/TypeSpeedGame');
 })->name('type-speed-game');
 
-Route::middleware('auth:sanctum')->post('Games/TypeSpeedGame/results', [TypeSpeedResultController::class, 'store']);
-
 Route::get('/games/memorygame', function () {
     return Inertia::render('Games/MemoryGame');
 })->name('memory-game');

@@ -149,14 +149,13 @@ const saveResultsButton = async () => {
     const response = await saveResults(results);
     if (response.ok) {
         resultsSaved.value = true;
-        alert('Results saved successfully');
     } else {
         alert('Failed to save results');
     }
 };
 
 const saveResults = async (results) => {
-    return await fetch('http://127.0.0.1:8000/Games/TypeSpeedGame/results', {
+    return await fetch('/api/typespeed/results', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

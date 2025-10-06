@@ -39,7 +39,7 @@ function scrollToSection(sectionId) {
                 </div>
 
                 <!-- Leaderboard at bottom -->
-                <div class="leader-board w-full mx-auto bg-white rounded-lg shadow p-6 mt-4">
+                <div class="leader-board w-full mx-auto bg-white rounded-lg shadow p-0 mt-4">
                     <slot name="leaderboard" />
                 </div>
             </div>

@@ -1,14 +1,27 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import GameLayout from '@/Pages/Games/GameLayout.vue';
 import TypeSpeedGameCore from '@/Components/TypeSpeedGameCore.vue';
+import TypeSpeedLeaderBoard from '@/Components/LeaderBoards/TypeSpeedLeaderBoard.vue';
 
-let startFlag = ref(false);
+const startFlag = ref(false);
+const leaderboardLoading = ref(true);
+const users = ref([]);
 
 const startGame = () => {
     startFlag.value = true;
 };
 
+const getUsers = async () => {
+    const response = await fetch('/api/typespeed/leaderboard/?count=10');
+    const data = await response.json();
+    return data;
+};
+
+onMounted(async () => {
+    users.value = await getUsers();
+    leaderboardLoading.value = false;
+});
 </script>
 
 <template>
@@ -36,18 +49,33 @@ const startGame = () => {
         </template>
 
         <template #leaderboard>
-            <div class="leader-board">
-                <h2 class="text-2xl font-bold">Leader Board</h2>
-                <ul>
-                    <li>User1: 100 WPM</li>
-                    <li>User2: 95 WPM</li>
-                    <li>User3: 90 WPM</li>
-                </ul>
+            <div v-if="leaderboardLoading" class="w-full h-full flex flex-col items-center justify-center">
+                <div class="flex flex-col items-center justify-center h-full">
+                    <svg class="animate-spin h-12 w-12 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                    </svg>
+                    <span class="text-xl font-semibold text-blue-600">leaderboardLoading text...</span>
+                </div>
             </div>
+
+            <TypeSpeedLeaderBoard 
+                v-else 
+                :users="users" 
+            />
         </template>
     </GameLayout>
 </template>
 
+<style>
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+.animate-blink {
+    animation: blink 1s step-end infinite;
+}
+</style>
 
 <script>
 import { h } from 'vue';

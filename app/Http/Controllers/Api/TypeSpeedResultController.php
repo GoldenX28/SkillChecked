@@ -43,4 +43,26 @@ class TypeSpeedResultController extends Controller
 
         return response()->json(['success' => true, 'result' => $result], 201);
     }
+
+    public function leaderboard(Request $request)
+    {
+        $count = $request->get('count');
+        // Get each user's best result (max wpm)
+        $sub = TypeSpeedResult::selectRaw('user_id, MAX(wpm) as max_wpm')
+            ->groupBy('user_id');
+
+        $results = TypeSpeedResult::joinSub($sub, 'max_results', function($join) {
+                $join->on('type_speed_results.user_id', '=', 'max_results.user_id')
+                     ->on('type_speed_results.wpm', '=', 'max_results.max_wpm');
+            })
+            ->with('user')
+            ->orderBy('wpm', 'desc');
+
+        if ($count && is_int($count)) {
+            $results = $results->limit($count);
+        }
+
+        $results = $results->get();
+        return response()->json($results);
+    }
 }
