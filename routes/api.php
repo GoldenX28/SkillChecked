@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\TypeSpeedResultController;
 Route::post('/aimtrainer/result', [AimTrainerController::class, 'store']);
 Route::get('/aimtrainer/leaderboard', [AimTrainerController::class, 'leaderboard']);
 
-Route::middleware("api")->get('/typespeed/leaderboard', [TypeSpeedResultController::class, 'leaderboard']);
-
-Route::middleware('auth:sanctum')->post('typespeed/results', [TypeSpeedResultController::class, 'store']);
+Route::middleware(['auth:sanctum', 'web'])->group(function () {
+    Route::post('/typespeed/result', [TypeSpeedResultController::class, 'store']);
+    Route::get('/typespeed/leaderboard', [TypeSpeedResultController::class, 'leaderboard']);
+});

@@ -3,13 +3,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\AimTrainerResult;
+use Illuminate\Support\Facades\Auth;
 
 class AimTrainerController extends Controller
 {
     public function store(Request $request)
 {
     $result = AimTrainerResult::create([
-        'user_id' => auth()->id(),
+        'user_id' => Auth::id(),
         'hits' => $request->hits,
         'clicks' => $request->clicks,
         'accuracy' => $request->accuracy,

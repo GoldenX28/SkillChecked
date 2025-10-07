@@ -1,10 +1,13 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import GameLayout from '@/Pages/Games/GameLayout.vue';
 import axios from 'axios';
 
+const page = usePage();
+
 // Game state
-const gameDuration = 60; // seconds
+const gameDuration = 1; // seconds
 const targetRadius = 40; // px
 
 const gameStarted = ref(false);
@@ -91,7 +94,7 @@ async function fetchLeaderboard() {
 
 // Watchers
 watch(showResults, (val) => {
-    if (val) saveResult();
+    if (val && page.props.auth.user) saveResult();
 });
 
 watch(leaderboardSort, () => {

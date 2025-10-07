@@ -12,11 +12,14 @@ const startGame = () => {
     startFlag.value = true;
 };
 
+
 const getUsers = async () => {
     const response = await fetch('/api/typespeed/leaderboard/?count=10');
+    console.log(response)
     const data = await response.json();
     return data;
 };
+getUsers()
 
 onMounted(async () => {
     users.value = await getUsers();
