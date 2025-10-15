@@ -63,25 +63,7 @@ function scrollToSection(sectionId) {
     
     <div class="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
         
-        <!-- Hero Section -->
-        <section id="home" class="pt-16 bg-gradient-to-br from-blue-600 to-purple-700 text-white">
-            <div class="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
-                <div class="text-center">
-                    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl animate-fade-in-up">
-                        {{ heroTitle }}
-                    </h1>
-                    <p class="mx-auto mt-6 max-w-2xl text-xl text-blue-100 animate-fade-in-up animation-delay-200">
-                        {{ heroSubtitle }}
-                    </p>
-                    <div class="mt-10 animate-fade-in-up animation-delay-400">
-                        <a href="#services" @click.prevent="scrollToSection('services')" 
-                           class="inline-block rounded-full bg-white px-8 py-3 text-lg font-medium text-blue-600 shadow-lg hover:bg-gray-50 hover:-translate-y-1 transition-all duration-300">
-                            {{ ctaButton }}
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
+        
 
         <!-- Features Section -->
         <section id="services" class="py-20 bg-gray-50 dark:bg-gray-800">
@@ -119,17 +101,7 @@ function scrollToSection(sectionId) {
             </div>
         </section>
 
-        <!-- Footer -->
-        <footer id="contact" class="bg-gray-900 text-white">
-            <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-                <div class="text-center">
-                    <p>&copy; {{ currentYear }} {{ siteName }}. All rights reserved.</p>
-                    <p class="mt-2 text-sm text-gray-400">
-                        Laravel v{{ laravelVersion }} (PHP v{{ phpVersion }})
-                    </p>
-                </div>
-            </div>
-        </footer>
+       
     </div>
 </template>
 

@@ -1,47 +1,70 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\TypeSpeedResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class TypeSpeedResultController extends Controller
 {
+    public function __construct()
+    {
+        // Only require auth for storing results; leaderboard is public
+        $this->middleware('auth:sanctum')->only('store');
+    }
+
     public function store(Request $request)
     {
-        $request->validate([
-            'wpm' => 'required|integer',
-            'correct_chars' => 'required|integer',
-            'errors' => 'required|integer',
-            'typed_chars' => 'required|integer',
-            'accuracy' => 'required|integer',
-        ]);
+        try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User must be authenticated'
+                ], 401);
+            }
 
-        // Prevent duplicate save for the same user and stats in a short time window
-        $alreadySaved = TypeSpeedResult::where('user_id', Auth::id())
-            ->where('wpm', $request->wpm)
-            ->where('correct_chars', $request->correct_chars)
-            ->where('errors', $request->errors)
-            ->where('typed_chars', $request->typed_chars)
-            ->where('accuracy', $request->accuracy)
-            ->where('created_at', '>=', now()->subMinutes(5))
-            ->exists();
+            Log::info('TypeSpeed store attempt', [
+                'user_id' => Auth::id(),
+                'data' => $request->all()
+            ]);
 
-        if ($alreadySaved) {
-            return response()->json(['success' => false, 'message' => 'Results already saved.'], 409);
+            $validated = $request->validate([
+                'wpm' => 'required|integer',
+                'correct_chars' => 'required|integer',
+                'errors' => 'required|integer',
+                'typed_chars' => 'required|integer',
+                'accuracy' => 'required|numeric'
+            ]);
+
+            $result = TypeSpeedResult::create([
+                'user_id' => Auth::id(), // Make sure user_id is set
+                'wpm' => $validated['wpm'],
+                'correct_chars' => $validated['correct_chars'],
+                'errors' => $validated['errors'],
+                'typed_chars' => $validated['typed_chars'],
+                'accuracy' => $validated['accuracy']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'result' => $result
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('TypeSpeed store error', [
+                'error' => $e->getMessage(),
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save results: ' . $e->getMessage()
+            ], 500);
         }
-
-        $result = TypeSpeedResult::create([
-            'user_id' => Auth::id(),
-            'wpm' => $request->wpm,
-            'correct_chars' => $request->correct_chars,
-            'errors' => $request->errors,
-            'typed_chars' => $request->typed_chars,
-            'accuracy' => $request->accuracy,
-        ]);
-
-        return response()->json(['success' => true, 'result' => $result], 201);
     }
 
     public function leaderboard(Request $request)
@@ -52,11 +75,11 @@ class TypeSpeedResultController extends Controller
             ->groupBy('user_id');
 
         $results = TypeSpeedResult::joinSub($sub, 'max_results', function($join) {
-                $join->on('type_speed_results.user_id', '=', 'max_results.user_id')
-                     ->on('type_speed_results.wpm', '=', 'max_results.max_wpm');
-            })
-            ->with('user')
-            ->orderBy('wpm', 'desc');
+            $join->on('type_speed_results.user_id', '=', 'max_results.user_id')
+                 ->on('type_speed_results.wpm', '=', 'max_results.max_wpm');
+        })
+        ->with('user')
+        ->orderBy('wpm', 'desc');
 
         if ($count && is_int($count)) {
             $results = $results->limit($count);

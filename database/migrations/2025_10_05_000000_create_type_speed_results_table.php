@@ -1,10 +1,12 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    public function up(): void
+return new class extends Migration
+{
+    public function up()
     {
         Schema::create('type_speed_results', function (Blueprint $table) {
             $table->id();
@@ -13,12 +15,12 @@ return new class extends Migration {
             $table->integer('correct_chars');
             $table->integer('errors');
             $table->integer('typed_chars');
-            $table->integer('accuracy');
+            $table->decimal('accuracy', 5, 2);
             $table->timestamps();
         });
     }
 
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('type_speed_results');
     }

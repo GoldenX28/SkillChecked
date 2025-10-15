@@ -1,10 +1,14 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import GameLayout from '@/Pages/Games/GameLayout.vue';
+import AimTrainerLeaderBoard from '@/Components/LeaderBoards/AimTrainerLeaderBoard.vue';
 import axios from 'axios';
 
+const page = usePage();
+
 // Game state
-const gameDuration = 60; // seconds
+const gameDuration = 30; // seconds
 const targetRadius = 40; // px
 
 const gameStarted = ref(false);
@@ -91,7 +95,7 @@ async function fetchLeaderboard() {
 
 // Watchers
 watch(showResults, (val) => {
-    if (val) saveResult();
+    if (val && page.props.auth.user) saveResult();
 });
 
 watch(leaderboardSort, () => {
@@ -110,69 +114,61 @@ onUnmounted(() => {
 <template>
     <GameLayout gameName="Aim Trainer">
         <template #gamewindow>
-            <div class="game-instructions mb-4">
-                <h2 class="text-2xl font-bold">Aim Trainer</h2>
-                <p>Click on the circles as fast and accurately as you can for 60 seconds. Missing counts as a miss!</p>
-            </div>
-            <div class="mb-4">
-                <button
-                    v-if="!gameStarted && !showResults"
-                    @click="startGame"
-                    class="px-4 py-2 bg-blue-600 text-white rounded"
+            <div class="flex flex-col items-center justify-center h-full p-4">
+                <div class="game-instructions mb-4">
+                    <h2 class="text-2xl font-bold">Aim Trainer</h2>
+                    <p>Click on the circles as fast and accurately as you can for 60 seconds. Missing counts as a miss!</p>
+                </div>
+                <div class="mb-4">
+                    <button
+                        v-if="!gameStarted && !showResults"
+                        @click="startGame"
+                        class="px-4 py-2 bg-blue-600 text-white rounded"
+                    >
+                        Start Game
+                    </button>
+                    <div v-if="gameStarted" class="mb-2 text-lg font-semibold">
+                        Time Left: {{ timeLeft }}s
+                    </div>
+                </div>
+                <div
+                    v-if="gameStarted"
+                    class="aim-trainer-container"
+                    @click="handleClick"
+                    style="width: 500px; height: 400px; position: relative; background: #f3f3f3; border-radius: 12px; overflow: hidden; cursor: crosshair;"
                 >
-                    Start Game
-                </button>
-                <div v-if="gameStarted" class="mb-2 text-lg font-semibold">
-                    Time Left: {{ timeLeft }}s
+                    <div
+                        class="target-circle"
+                        :style="{
+                            position: 'absolute',
+                            left: target.x - targetRadius + 'px',
+                            top: target.y - targetRadius + 'px',
+                            width: targetRadius * 2 + 'px',
+                            height: targetRadius * 2 + 'px',
+                            borderRadius: '50%',
+                            background: '#e53e3e',
+                            boxShadow: '0 0 10px #e53e3e88',
+                            border: '2px solid #fff',
+                            cursor: 'pointer',
+                        }"
+                    ></div>
+                </div>
+                <div v-if="showResults" class="mt-6 text-center">
+                    <h3 class="text-xl font-bold mb-2">Results</h3>
+                    <p>Targets Hit: <span class="font-semibold">{{ targetsHit }}</span></p>
+                    <p>Total Clicks: <span class="font-semibold">{{ totalClicks }}</span></p>
+                    <p>Accuracy: <span class="font-semibold">{{ accuracy }}</span></p>
+                    <button @click="startGame" class="mt-4 px-4 py-2 bg-green-600 text-white rounded">Play Again</button>
                 </div>
             </div>
-            <div
-                v-if="gameStarted"
-                class="aim-trainer-container"
-                @click="handleClick"
-                style="width: 500px; height: 400px; position: relative; background: #f3f3f3; border-radius: 12px; overflow: hidden; cursor: crosshair;"
-            >
-                <div
-                    class="target-circle"
-                    :style="{
-                        position: 'absolute',
-                        left: target.x - targetRadius + 'px',
-                        top: target.y - targetRadius + 'px',
-                        width: targetRadius * 2 + 'px',
-                        height: targetRadius * 2 + 'px',
-                        borderRadius: '50%',
-                        background: '#e53e3e',
-                        boxShadow: '0 0 10px #e53e3e88',
-                        border: '2px solid #fff',
-                        cursor: 'pointer',
-                    }"
-                ></div>
-            </div>
-            <div v-if="showResults" class="mt-6 text-center">
-                <h3 class="text-xl font-bold mb-2">Results</h3>
-                <p>Targets Hit: <span class="font-semibold">{{ targetsHit }}</span></p>
-                <p>Total Clicks: <span class="font-semibold">{{ totalClicks }}</span></p>
-                <p>Accuracy: <span class="font-semibold">{{ accuracy }}</span></p>
-                <button @click="startGame" class="mt-4 px-4 py-2 bg-green-600 text-white rounded">Play Again</button>
-            </div>
+            
         </template>
 
         <template #leaderboard>
-            <div class="leader-board">
-                <h2 class="text-2xl font-bold mb-2">Leader Board</h2>
-                <div class="mb-4">
-                    <label class="mr-2 font-semibold">Sort by:</label>
-                    <select v-model="leaderboardSort" class="px-2 py-1 rounded border">
-                        <option value="hits">Hits</option>
-                        <option value="accuracy">Accuracy</option>
-                    </select>
-                </div>
-                <ul>
-                    <li v-for="entry in leaderboard" :key="entry.id">
-                        {{ entry.user?.name ?? 'Guest' }}: {{ entry.hits }} hits, {{ entry.accuracy.toFixed(1) }}% accuracy
-                    </li>
-                </ul>
-            </div>
+            <AimTrainerLeaderBoard
+                v-if="leaderboard.length"
+                :users="leaderboard"
+            />
         </template>
     </GameLayout>
 </template>

@@ -1,7 +1,7 @@
 <script setup>
 let resultsSaved = ref(false);
 import { ref, useTemplateRef, onUnmounted, onMounted } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
   maxTime: { type: Number, default: 30 }
@@ -136,6 +136,8 @@ const gameEnd = () => {
     accuracy = typedChars > 0 ? Math.round((correctChars / typedChars) * 100) : 0;
 };
 
+
+
 const saveResultsButton = async () => {
     if (resultsSaved.value) return;
     const results = {
@@ -146,24 +148,57 @@ const saveResultsButton = async () => {
         accuracy: accuracy,
     };
     
-    const response = await saveResults(results);
-    if (response.ok) {
+    try {
+        const data = await saveResults(results);  // Remove response.json() call here
+        console.log('Success:', data);
         resultsSaved.value = true;
-    } else {
-        alert('Failed to save results');
+        alert('Results saved successfully!');
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to save results: ' + error.message);
     }
 };
 
 const saveResults = async (results) => {
-    return await fetch('/api/typespeed/results', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-        },
-        body: JSON.stringify(results),
-    });
+    try {
+        const page = usePage();
+        console.log('Auth state:', page.props.auth); // Debug auth state
 
+        if (!page.props.auth?.user) {
+            throw new Error('Please log in to save your results');
+        }
+
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        console.log('CSRF token:', token); // Debug CSRF token
+
+        const response = await fetch('/api/typespeed/result', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': token,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                ...results,
+                user_id: page.props.auth.user.id
+            })
+        });
+
+        console.log('Response status:', response.status); // Debug response
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to save results');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Save error:', error);
+        throw error;
+    }
 };
 
 const restartGame = () => {
