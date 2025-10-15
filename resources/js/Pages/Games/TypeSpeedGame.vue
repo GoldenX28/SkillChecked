@@ -14,6 +14,12 @@ const startGame = () => {
 
 
 const getUsers = async () => {
+    try {
+        await window.axios.get('/sanctum/csrf-cookie');
+    } catch (e) {
+        // ignore; server may not expose this endpoint if using token auth
+    }
+    console.log('Fetching leaderboard data...');
     const response = await axios.get('/api/typespeed/leaderboard', { params: { count: 10 } });
     // axios returns data on response.data
     return response.data;
@@ -45,6 +51,7 @@ onMounted(async () => {
                     @restartGame="() => {
                         startFlag = false;
                     }" 
+                    @resultsSaved="() => users.value = getUsers()"
                 />
             </div> 
         </template>

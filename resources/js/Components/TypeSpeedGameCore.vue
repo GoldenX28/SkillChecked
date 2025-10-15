@@ -6,7 +6,7 @@ import { usePage } from '@inertiajs/vue3';
 const props = defineProps({
   maxTime: { type: Number, default: 30 }
 });
-const emit = defineEmits(['restartGame']);
+const emit = defineEmits(['restartGame', 'resultsSaved']);
 
 let startFlag = ref(false);
 let showResults = ref(false);
@@ -152,7 +152,7 @@ const saveResultsButton = async () => {
         const data = await saveResults(results);  // Remove response.json() call here
         console.log('Success:', data);
         resultsSaved.value = true;
-        alert('Results saved successfully!');
+        emit('resultsSaved', true);
     } catch (error) {
         console.error('Error:', error);
         alert('Failed to save results: ' + error.message);
