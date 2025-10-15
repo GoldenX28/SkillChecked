@@ -90,15 +90,7 @@ async function fetchLeaderboard() {
     const res = await axios.get('/api/aimtrainer/leaderboard', {
         params: { sort: leaderboardSort.value }
     });
-    leaderboard.value = res.data.map(user => ({
-        user: user.user,
-        hits: user.hits,
-        accuracy: user.accuracy,
-        clicks: user.clicks,
-        errors: user.clicks - user.hits,
-    }));
-
-    console.log(leaderboard.value);
+    leaderboard.value = res.data;
 }
 
 // Watchers

@@ -47,7 +47,15 @@ const scrollToFooter = () => {
                         :href="route('welcome') + '#services'"
                         class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors dark:text-gray-100 dark:hover:text-blue-400"
                     >
-                        Services
+                        Games
+                    </Link>
+
+                    
+                    <Link
+                        :href="route('leaderboard')"
+                        class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors dark:text-gray-100 dark:hover:text-blue-400"
+                    >
+                        Leaderboard
                     </Link>
 
                     <!-- Contact: call scroll helper when clicked -->

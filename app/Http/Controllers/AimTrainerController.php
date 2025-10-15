@@ -10,12 +10,27 @@ class AimTrainerController extends Controller
 {
     public function store(Request $request)
 {
+    // Compute accuracy server-side if not provided to ensure consistency
+    $hits = (int) $request->hits;
+    $clicks = (int) $request->clicks;
+    if ($request->has('accuracy') && is_numeric($request->accuracy)) {
+        $accuracy = (float) $request->accuracy;
+    } else {
+        $accuracy = $clicks > 0 ? ($hits / $clicks) * 100 : 0;
+        $accuracy = round($accuracy, 2);
+    }
+
     $result = AimTrainerResult::create([
         'user_id' => Auth::id(),
-        'hits' => $request->hits,
-        'clicks' => $request->clicks,
-        'accuracy' => $request->accuracy,
+        'hits' => $hits,
+        'clicks' => $clicks,
+        'accuracy' => $accuracy,
     ]);
+
+    // Attach computed errors for the response (not stored in DB)
+    $errors = max(0, $clicks - $hits);
+    $result->setAttribute('errors', $errors);
+
     return response()->json($result);
 }
 
@@ -43,6 +58,12 @@ class AimTrainerController extends Controller
             ->orderBy("aim_trainer_results.$sort", 'desc')
             ->limit(10)
             ->get();
+
+        // Add errors (clicks - hits) to each result before returning
+        $results->transform(function ($r) {
+            $r->setAttribute('errors', max(0, (int) $r->clicks - (int) $r->hits));
+            return $r;
+        });
 
         return response()->json($results);
     }

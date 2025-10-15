@@ -12,7 +12,8 @@ class TypeSpeedResultController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum');
+        // Only require auth for storing results; leaderboard is public
+        $this->middleware('auth:sanctum')->only('store');
     }
 
     public function store(Request $request)

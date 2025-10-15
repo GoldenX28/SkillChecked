@@ -14,12 +14,10 @@ const startGame = () => {
 
 
 const getUsers = async () => {
-    const response = await fetch('/api/typespeed/leaderboard/?count=10');
-    console.log(response)
-    const data = await response.json();
-    return data;
+    const response = await axios.get('/api/typespeed/leaderboard', { params: { count: 10 } });
+    // axios returns data on response.data
+    return response.data;
 };
-getUsers()
 
 onMounted(async () => {
     users.value = await getUsers();
