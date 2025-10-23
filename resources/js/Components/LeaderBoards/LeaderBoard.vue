@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
+import * as XLSX from "xlsx";
 
 const props = defineProps({
   users: {
@@ -39,6 +40,23 @@ function sortBy(key) {
     sortKey.value = key;
     sortDir.value = "desc";
   }
+}
+const downloadExcel = () => {
+    // Step 1: Create header row from columns
+  const headers = props.columns.map(col => col.label || col.key);
+  // Step 2: Map data rows
+  const data = props.users.map(user => 
+    [user.user.name, ...props.columns.map(col => user[col])]
+  );
+  // Step 3: Combine headers + data
+  const worksheetData = [props.columns, ...data];
+  // Step 4: Create worksheet and workbook
+  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+
+  // Step 5: Save file
+  XLSX.writeFile(workbook, "users.xlsx");
 }
 </script>
 
@@ -80,6 +98,12 @@ function sortBy(key) {
                 </tr>
             </tbody>
         </table>
+        <button
+            @click="downloadExcel"
+            class="bg-slate-900 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-md shadow transition"
+        >
+            ⬇️ Download Excel
+        </button>
     </div>
 </template>
 
@@ -88,5 +112,4 @@ function sortBy(key) {
     max-width: 600px;
     margin: auto;
 }
-/* All styling is now handled by Tailwind classes in the template */
 </style>
