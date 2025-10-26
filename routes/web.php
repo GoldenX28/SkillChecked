@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Api\TypeSpeedResultController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -38,6 +39,35 @@ Route::middleware('auth')->group(function () {
     })->name('profile.my-runs');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Admin area (basic auth protection). Also ensure only users with is_admin can access.
+    Route::get('/admin', function () {
+        if (!Auth::check() || !Auth::user()?->is_admin) {
+            abort(403);
+        }
+        return Inertia::render('Admin/Dashboard');
+    })->name('admin.dashboard');
+    
+    // Stub admin routes for the sidebar links (placeholders)
+    Route::get('/admin/users', function () {
+        if (!Auth::check() || !Auth::user()?->is_admin) {
+            abort(403);
+        }
+        return Inertia::render('Admin/Users');
+    })->name('admin.users');
+    
+    Route::get('/admin/results', function () {
+        if (!Auth::check() || !Auth::user()?->is_admin) {
+            abort(403);
+        }
+        return Inertia::render('Admin/Results');
+    })->name('admin.results');
+    
+    Route::get('/admin/settings', function () {
+        if (!Auth::check() || !Auth::user()?->is_admin) {
+            abort(403);
+        }
+        return Inertia::render('Admin/Settings');
+    })->name('admin.settings');
 });
 
 require __DIR__.'/auth.php';

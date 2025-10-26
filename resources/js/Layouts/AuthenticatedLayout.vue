@@ -29,7 +29,8 @@ const scrollToFooter = () => {
 </script>
 
 <template>
-    <header class="w-full bg-white shadow-lg dark:bg-gray-800">
+    <!-- Hide the standard authenticated header on admin pages to avoid duplicate headers covering admin controls -->
+    <header v-if="!($page?.component?.startsWith('Admin/'))" class="w-full bg-white shadow-lg dark:bg-gray-800">
         <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 justify-between items-center">
                 <div class="flex items-center">
@@ -58,6 +59,14 @@ const scrollToFooter = () => {
                         Leaderboard
                     </Link>
 
+                    <Link
+                        v-if="$page.props.auth.user?.is_admin"
+                        :href="route('admin.dashboard')"
+                        class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors dark:text-gray-100 dark:hover:text-blue-400"
+                    >
+                        Admin
+                    </Link>
+
                     <!-- Contact: call scroll helper when clicked -->
                     <button
                         @click.prevent="scrollToFooter"
@@ -81,6 +90,7 @@ const scrollToFooter = () => {
 
                         <template #content>
                             <DropdownLink :href="route('profile.edit')">Profile</DropdownLink>
+                            <DropdownLink v-if="$page.props.auth.user?.is_admin" :href="route('admin.dashboard')">Admin Panel</DropdownLink>
                             <DropdownLink :href="route('logout')" method="post" as="button">Log Out</DropdownLink>
                         </template>
                     </Dropdown>
