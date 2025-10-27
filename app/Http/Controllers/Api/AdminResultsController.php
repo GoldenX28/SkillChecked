@@ -13,7 +13,9 @@ class AdminResultsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->only(['destroy']);
+        // Route-level middleware (web + auth:sanctum) is applied in routes/api.php
+        // to protect mutation endpoints. Controller-level middleware is redundant
+        // and has been removed to keep behavior centralized.
     }
 
     /**
