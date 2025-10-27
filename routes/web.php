@@ -39,13 +39,8 @@ Route::middleware('auth')->group(function () {
     })->name('profile.my-runs');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    // Admin area (basic auth protection). Also ensure only users with is_admin can access.
-    Route::get('/admin', function () {
-        if (!Auth::check() || !Auth::user()?->is_admin) {
-            abort(403);
-        }
-        return Inertia::render('Admin/Dashboard');
-    })->name('admin.dashboard');
+    // Admin area (basic auth protection). Admin landing route removed; Admin UI
+    // uses /admin/results as the main entry point.
     
     // Stub admin routes for the sidebar links (placeholders)
     Route::get('/admin/users', function () {
@@ -62,12 +57,7 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Admin/Results');
     })->name('admin.results');
     
-    Route::get('/admin/settings', function () {
-        if (!Auth::check() || !Auth::user()?->is_admin) {
-            abort(403);
-        }
-        return Inertia::render('Admin/Settings');
-    })->name('admin.settings');
+    // Admin settings route removed (unused).
 });
 
 require __DIR__.'/auth.php';

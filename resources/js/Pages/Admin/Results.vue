@@ -11,7 +11,6 @@
                     <div class="flex items-center space-x-2">
                         <label class="text-sm">Game</label>
                         <select v-model="selectedGame" @change="fetchResults" class="border rounded px-2 py-1">
-                            <option value="">All</option>
                             <option value="memory">Memory</option>
                             <option value="typespeed">TypeSpeed</option>
                             <option value="aimtrainer">AimTrainer</option>
@@ -32,12 +31,12 @@
                             <tr>
                                 <th class="px-4 py-2">#</th>
                                 <th class="px-4 py-2">User</th>
-                                <th v-if="selectedGame === '' || selectedGame === 'memory'" class="px-4 py-2">Moves</th>
-                                <th v-if="selectedGame === '' || selectedGame === 'memory'" class="px-4 py-2">Time (s)</th>
-                                <th v-if="selectedGame === '' || selectedGame === 'typespeed'" class="px-4 py-2">WPM</th>
-                                <th v-if="selectedGame === '' || selectedGame === 'typespeed'" class="px-4 py-2">Accuracy</th>
-                                <th v-if="selectedGame === '' || selectedGame === 'aimtrainer'" class="px-4 py-2">Hits</th>
-                                <th v-if="selectedGame === '' || selectedGame === 'aimtrainer'" class="px-4 py-2">Accuracy</th>
+                                <th v-if="selectedGame === 'memory'" class="px-4 py-2">Moves</th>
+                                <th v-if="selectedGame === 'memory'" class="px-4 py-2">Time (s)</th>
+                                <th v-if="selectedGame === 'typespeed'" class="px-4 py-2">WPM</th>
+                                <th v-if="selectedGame === 'typespeed'" class="px-4 py-2">Accuracy</th>
+                                <th v-if="selectedGame === 'aimtrainer'" class="px-4 py-2">Hits</th>
+                                <th v-if="selectedGame === 'aimtrainer'" class="px-4 py-2">Accuracy</th>
                                 <th class="px-4 py-2">Game</th>
                                 <th class="px-4 py-2">When</th>
                                 <th class="px-4 py-2">Actions</th>
@@ -54,7 +53,7 @@
                                 <td v-if="r.game === 'aimtrainer'" class="px-4 py-2">{{ r.hits }}</td>
                                 <td v-if="r.game === 'aimtrainer'" class="px-4 py-2">{{ r.accuracy }}</td>
                                 <td class="px-4 py-2">{{ r.game }}</td>
-                                <td class="px-4 py-2">{{ r.created_at }}</td>
+                                <td class="px-4 py-2">{{ formatDate(r.created_at) }}</td>
                                 <td class="px-4 py-2">
                                     <button @click="deleteResult(r)" class="px-2 py-1 bg-red-600 text-white rounded">Delete</button>
                                 </td>
@@ -71,18 +70,14 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ref, computed, onMounted } from 'vue';
 
-const selectedGame = ref('');
+// Default to 'memory' so admins see a sensible, sortable list by default.
+const selectedGame = ref('memory');
 const sortBy = ref('created_at');
 const order = ref('desc');
 const results = ref([]);
 
 const sortOptions = computed(() => {
     // Provide sort options depending on selectedGame
-    if (!selectedGame.value) {
-        return [
-            { value: 'created_at', label: 'Newest' },
-        ];
-    }
     if (selectedGame.value === 'memory') {
         return [
             { value: 'moves', label: 'Least Moves' },
@@ -139,6 +134,16 @@ async function deleteResult(r) {
         results.value = results.value.filter(x => !(x.game === r.game && x.id === r.id));
     } catch (e) {
         alert('Error deleting result: ' + (e.response?.data?.message || e.message));
+    }
+}
+
+function formatDate(value) {
+    if (!value) return '';
+    try {
+        const d = new Date(value);
+        return d.toLocaleString();
+    } catch (e) {
+        return value;
     }
 }
 </script>

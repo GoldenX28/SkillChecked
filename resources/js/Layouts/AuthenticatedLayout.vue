@@ -61,7 +61,7 @@ const scrollToFooter = () => {
 
                     <Link
                         v-if="$page.props.auth.user?.is_admin"
-                        :href="route('admin.dashboard')"
+                        :href="route('admin.results')"
                         class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors dark:text-gray-100 dark:hover:text-blue-400"
                     >
                         Admin
@@ -90,7 +90,7 @@ const scrollToFooter = () => {
 
                         <template #content>
                             <DropdownLink :href="route('profile.edit')">Profile</DropdownLink>
-                            <DropdownLink v-if="$page.props.auth.user?.is_admin" :href="route('admin.dashboard')">Admin Panel</DropdownLink>
+                            <DropdownLink v-if="$page.props.auth.user?.is_admin" :href="route('admin.results')">Admin Panel</DropdownLink>
                             <DropdownLink :href="route('logout')" method="post" as="button">Log Out</DropdownLink>
                         </template>
                     </Dropdown>

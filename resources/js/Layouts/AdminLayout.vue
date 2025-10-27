@@ -73,7 +73,7 @@ const scrollToFooter = () => {
                             </template>
 
                             <template #content>
-                                <DropdownLink :href="route('admin.dashboard')">Dashboard</DropdownLink>
+                                <DropdownLink :href="route('admin.results')">Admin</DropdownLink>
                                 <DropdownLink :href="route('leaderboard')">Leaderboard</DropdownLink>
                                 <DropdownLink :href="route('profile.edit')">Profile</DropdownLink>
                                 <DropdownLink :href="route('logout')" method="post" as="button">Log Out</DropdownLink>
@@ -88,10 +88,8 @@ const scrollToFooter = () => {
             <div class="grid grid-cols-12 gap-6">
                 <aside class="col-span-3 bg-white rounded shadow p-4">
                     <nav class="flex flex-col space-y-2">
-                        <Link :href="route('admin.dashboard')" class="px-3 py-2 rounded hover:bg-gray-100">Overview</Link>
                         <Link :href="route('admin.users')" class="px-3 py-2 rounded hover:bg-gray-100">Users</Link>
                         <Link :href="route('admin.results')" class="px-3 py-2 rounded hover:bg-gray-100">Results</Link>
-                        <Link :href="route('admin.settings')" class="px-3 py-2 rounded hover:bg-gray-100">Settings</Link>
                     </nav>
                 </aside>
 
