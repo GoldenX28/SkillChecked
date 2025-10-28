@@ -89,6 +89,7 @@ function formatTimestamp(ts) {
         fetchRuns();
     });
 
-    // expose difficulty so template can bind
-    export { difficulty };
+    // expose difficulty so template can bind in the template scope
+    // `defineExpose` is the correct way to expose refs from <script setup>
+    defineExpose({ difficulty });
 </script>
